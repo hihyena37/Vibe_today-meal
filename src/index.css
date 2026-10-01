@@ -1,0 +1,103 @@
+:root {
+  --bg-primary: #FAF7F2;
+  --bg-surface: #FFFFFF;
+  --bg-subtle: #F2ECE1;
+  --bg-warm: #FFF9F3;
+
+  --primary: #FF5722;
+  --primary-hover: #E64A19;
+  --primary-light: #FFEBE5;
+  --primary-border: #FFCCBC;
+  
+  --secondary: #FF9800;
+  --secondary-light: #FFF3E0;
+
+  --accent-green: #2E7D32;
+  --accent-green-bg: #E8F5E9;
+
+  --text-main: #1D2129;
+  --text-sub: #4E5969;
+  --text-muted: #86909C;
+
+  --border-light: #E5E0D6;
+  --border-focus: #FF5722;
+
+  --radius-sm: 8px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-xl: 32px;
+  --radius-full: 9999px;
+
+  --shadow-subtle: 0 2px 8px rgba(30, 20, 10, 0.04);
+  --shadow-card: 0 4px 20px rgba(35, 25, 15, 0.06);
+  --shadow-card-hover: 0 10px 28px rgba(35, 25, 15, 0.1);
+  --shadow-primary: 0 8px 24px rgba(255, 87, 34, 0.28);
+  --shadow-floating: 0 12px 36px rgba(0, 0, 0, 0.08);
+
+  --font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.25s cubic-bezier(0.2, 0, 0, 1);
+  --transition-spring: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  width: 100%;
+  min-height: 100%;
+  background-color: var(--bg-primary);
+  color: var(--text-main);
+  font-family: var(--font-family);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.5;
+  letter-spacing: -0.015em;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+  overflow-x: hidden;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+/* 터치 및 버튼 접근성 기본 */
+button:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img, svg {
+  display: block;
+}
+
+/* 스크롤바 미려하게 처리 */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #D8D2C5;
+  border-radius: var(--radius-full);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #BCB6A9;
+}
