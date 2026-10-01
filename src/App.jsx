@@ -165,7 +165,7 @@ export default function App() {
   return (
     <div className="app-layout">
       {/* 상단 네비게이션 헤더 */}
-      <header className="app-nav">
+      <header className={`app-nav${step === 'intro' ? ' app-nav-intro' : ''}`}>
         <button
           type="button"
           className="brand-logo"
@@ -173,7 +173,9 @@ export default function App() {
           aria-label="오늘 뭐 먹지 홈으로 이동"
         >
           <span className="logo-emoji">🍽️</span>
-          <span className="logo-text">오늘 뭐 먹지?</span>
+          <span className="logo-text">
+            오늘 뭐 <span>먹지?</span>
+          </span>
         </button>
 
         {step !== 'intro' && (
