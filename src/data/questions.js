@@ -26,17 +26,20 @@ export const QUESTIONS = [
   {
     id: 3,
     key: 'budget',
-    title: '한 사람당 예산은?',
-    subtitle: '지갑 사정에 맞춰 가성비부터 플렉스까지!',
-    options: [
-      { label: '10,000원 이하', value: 10000, icon: '🪙', desc: '지갑 걱정 없는 착한 가성비' },
-      { label: '15,000원 이하', value: 15000, icon: '💵', desc: '대부분의 든든한 정식/식사' },
-      { label: '20,000원 이하', value: 20000, icon: '💳', desc: '조금 더 특별하고 넉넉한 한 끼' },
-      { label: '가격 상관없음', value: 999999, icon: '✨', desc: '오늘은 가격 보지 않고 맛있게!' },
-    ],
+    type: 'budget',
+    title: '한 사람당 얼마까지 쓸 수 있나요?',
+    subtitle: '회사 식비 지원액처럼 정확한 금액을 입력하면 1인당 예상 가격이 넘는 메뉴는 빼고 추천해요.',
+    quickAmounts: [10000, 12000, 15000, 20000],
   },
   {
     id: 4,
+    key: 'location',
+    type: 'location',
+    title: '어디에서 먹을 예정인가요?',
+    subtitle: '동네나 역 이름을 적으면 결과 화면에서 바로 지도 검색어로 쓸 수 있어요.',
+  },
+  {
+    id: 5,
     key: 'spicy',
     title: '매운 음식은 어느 정도 가능해요?',
     subtitle: '맵찔이부터 맵부심까지 취향을 저격해 드려요.',
@@ -47,7 +50,7 @@ export const QUESTIONS = [
     ],
   },
   {
-    id: 5,
+    id: 6,
     key: 'soup',
     title: '오늘 국물이 당기나요?',
     subtitle: '속 시원한 찌개·탕인지 깔끔한 볶음/구이인지 골라주세요.',
@@ -58,7 +61,7 @@ export const QUESTIONS = [
     ],
   },
   {
-    id: 6,
+    id: 7,
     key: 'fullness',
     title: '오늘 얼마나 든든하게 먹고 싶어요?',
     subtitle: '가벼운 식사부터 든든한 폭식까지 배부름의 기준!',

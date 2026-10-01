@@ -1,4 +1,14 @@
-export default function Intro({ onStart }) {
+import { useState } from 'react'
+import { formatBudgetLabel } from '../utils/budget.js'
+
+export default function Intro({ onStart, savedSettings, onClearSaved }) {
+  const [clearedNotice, setClearedNotice] = useState(false)
+
+  const handleClearSaved = () => {
+    onClearSaved()
+    setClearedNotice(true)
+  }
+
   const floatingFoods = [
     { emoji: '🍕', style: { top: '12%', left: '8%', animationDelay: '0s' } },
     { emoji: '🍜', style: { top: '18%', right: '10%', animationDelay: '0.8s' } },
@@ -43,14 +53,14 @@ export default function Intro({ onStart }) {
             <span className="feature-icon">✨</span>
             <div className="feature-text">
               <strong>취향 맞춤 분석</strong>
-              <small>예산·맵기·국물 취향 반영</small>
+              <small>1인당 식비·맵기·국물 취향 반영</small>
             </div>
           </div>
           <div className="feature-item">
             <span className="feature-icon">🎯</span>
             <div className="feature-text">
-              <strong>점수 기반 추천</strong>
-              <small>단순 랜덤 NO, 최적 후보 선정</small>
+              <strong>예산 초과 메뉴 제외</strong>
+              <small>1인당 예상 가격 기준으로 걸러내요</small>
             </div>
           </div>
           <div className="feature-item">
@@ -72,6 +82,26 @@ export default function Intro({ onStart }) {
             <span className="btn-icon">→</span>
           </button>
           <p className="intro-note">약 30초면 오늘 메뉴 고민이 끝납니다</p>
+
+          {savedSettings && (
+            <div className="saved-settings-card">
+              <span className="saved-settings-text">
+                💾 이 기기에 저장된 설정:{' '}
+                <strong>
+                  {[
+                    savedSettings.location !== undefined && (savedSettings.location || '지역 없이'),
+                    savedSettings.budget !== undefined && `1인당 ${formatBudgetLabel(savedSettings.budget)}`,
+                  ].filter(Boolean).join(' · ')}
+                </strong>
+              </span>
+              <button type="button" className="text-btn" onClick={handleClearSaved}>
+                저장한 설정 지우기
+              </button>
+            </div>
+          )}
+          {!savedSettings && clearedNotice && (
+            <p className="saved-settings-cleared" role="status">저장한 설정을 지웠어요.</p>
+          )}
         </div>
       </div>
     </div>

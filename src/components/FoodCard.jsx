@@ -44,7 +44,7 @@ export default function FoodCard({
 
       <div className="food-card-footer">
         <div className="food-spec-item">
-          <span className="spec-label">예상 예산</span>
+          <span className="spec-label">1인당 예상 가격</span>
           <span className="spec-value">~{food.budget.toLocaleString()}원</span>
         </div>
         <div className="food-spec-item">

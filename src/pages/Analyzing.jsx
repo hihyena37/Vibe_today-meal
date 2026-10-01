@@ -12,7 +12,7 @@ const SAMPLE_FOODS = [
   { name: '샤브샤브', emoji: '🫕' },
 ]
 
-export default function Analyzing({ onFinished }) {
+export default function Analyzing({ count = 0, onFinished }) {
   const [tickerIndex, setTickerIndex] = useState(0)
   const [statusText, setStatusText] = useState('취향 분석 중...')
   const [subText, setSubText] = useState('오늘의 메뉴 후보를 고르고 있어요.')
@@ -30,13 +30,18 @@ export default function Analyzing({ onFinished }) {
   useEffect(() => {
     const timer1 = setTimeout(() => {
       setStatusText('가장 적합한 후보를 선정하고 있어요...')
-      setSubText('예산과 맵기, 든든함을 꼼꼼히 계산 중!')
+      setSubText('1인당 예산과 맵기 조건을 넘는 메뉴는 빼는 중!')
     }, 900)
 
     const timer2 = setTimeout(() => {
       setIsFound(true)
-      setStatusText('당신에게 어울리는 메뉴 6개를 찾았어요!')
-      setSubText('지금 후보 목록을 확인해보세요!')
+      if (count === 0) {
+        setStatusText('조건에 맞는 메뉴를 찾지 못했어요')
+        setSubText('조건을 조금 바꾸면 다시 찾아볼게요.')
+      } else {
+        setStatusText(`조건에 맞는 메뉴 ${count}개를 찾았어요!`)
+        setSubText('지금 후보 목록을 확인해보세요!')
+      }
     }, 1900)
 
     const timer3 = setTimeout(() => {
@@ -48,7 +53,7 @@ export default function Analyzing({ onFinished }) {
       clearTimeout(timer2)
       clearTimeout(timer3)
     }
-  }, [onFinished])
+  }, [count, onFinished])
 
   const currentSample = SAMPLE_FOODS[tickerIndex]
 
@@ -63,8 +68,8 @@ export default function Analyzing({ onFinished }) {
           </div>
         ) : (
           <div className="analyzing-success animate-pop">
-            <span className="success-icon">🎉</span>
-            <span className="success-number">TOP 6</span>
+            <span className="success-icon">{count === 0 ? '🤔' : '🎉'}</span>
+            <span className="success-number">{count === 0 ? '0개' : `TOP ${count}`}</span>
           </div>
         )}
       </div>

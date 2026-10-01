@@ -58,7 +58,7 @@ export default function ResultCard({ food, onProceed }) {
             <h3 className="revealed-name">{food.name}</h3>
             <p className="revealed-tagline">{food.tagline}</p>
             <div className="revealed-price-pill">
-              <span>예상 가격 ~{food.budget.toLocaleString()}원</span>
+              <span>1인당 예상 가격 ~{food.budget.toLocaleString()}원</span>
             </div>
           </div>
         </div>

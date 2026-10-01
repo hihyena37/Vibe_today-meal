@@ -1,6 +1,22 @@
 import { FOODS } from '../data/foods.js'
+import { isUnlimitedBudget, formatWon } from './budget.js'
 
-export const NO_BUDGET_LIMIT = 999999
+export const MAX_CANDIDATES = 6
+
+/**
+ * 추천 점수와 상관없이 반드시 지켜야 하는 조건
+ * - 1인당 예상 가격이 입력한 예산 이하
+ * - 매운 음식 허용 범위 (전혀 안 됨 → 안 매운 메뉴만, 조금은 가능 → 화끈한 매운맛 제외)
+ */
+export function meetsHardConstraints(food, answers) {
+  const { budget, spicy } = answers
+
+  if (typeof budget === 'number' && food.budget > budget) return false
+  if (spicy === 0 && food.spicy > 0) return false
+  if (spicy === 1 && food.spicy > 1) return false
+
+  return true
+}
 
 /**
  * 음식 하나를 사용자 답변과 비교해 조건별 일치 여부와 점수를 계산
@@ -10,7 +26,7 @@ export const NO_BUDGET_LIMIT = 999999
  * @param {Object} answers
  *   - mealTime: 'breakfast' | 'lunch' | 'dinner' | 'lateNight'
  *   - party: 'solo' | 'friend' | 'colleague' | 'group'
- *   - budget: number (10000, 15000, 20000, 999999)
+ *   - budget: number (1인당 예산, 원) | 'unlimited'
  *   - spicy: number (0: 안돼요, 1: 조금 가능, 2: 좋아해요)
  *   - soup: 'yes' | 'any' | 'no'
  *   - fullness: number (1: 가볍게, 2: 적당히, 3: 아주 든든하게)
@@ -39,14 +55,10 @@ export function evaluateFood(food, answers) {
     matches.party = true
   }
 
-  // 3. 예산 (+3점, 15% 이내 살짝 초과 시 +1점)
-  if (answers.budget) {
-    if (answers.budget >= NO_BUDGET_LIMIT || food.budget <= answers.budget) {
-      score += 3
-      matches.budget = true
-    } else if (food.budget <= answers.budget * 1.15) {
-      score += 1
-    }
+  // 3. 예산 (+3점) — 초과 메뉴는 meetsHardConstraints에서 후보 선정 전에 제외됨
+  if (isUnlimitedBudget(answers.budget) || (typeof answers.budget === 'number' && food.budget <= answers.budget)) {
+    score += 3
+    matches.budget = true
   }
 
   // 4. 매운맛 (+2점)
@@ -94,15 +106,20 @@ export function evaluateFood(food, answers) {
 }
 
 /**
- * 사용자 답변에 따른 음식별 적합도 점수 계산 후 상위 후보 반환
+ * 필수 조건(예산·맵기)을 만족하는 음식만 남긴 뒤 적합도 점수 순으로 상위 후보 반환
+ * 조건을 만족하는 메뉴가 limit보다 적으면 실제 개수만 반환한다 (0개일 수도 있음)
  *
  * @param {Object} answers 사용자 응답 객체
  * @param {Array} excludedIds 제외할 음식 ID 배열
- * @param {number} limit 반환할 후보 수 (기본 6개)
+ * @param {number} limit 반환할 최대 후보 수 (기본 6개)
  * @returns {Array} 상위 추천 음식 배열
  */
-export function getRecommendedFoods(answers, excludedIds = [], limit = 6) {
-  const scoredFoods = FOODS.filter((food) => !excludedIds.includes(food.id)).map((food) => {
+export function getRecommendedFoods(answers, excludedIds = [], limit = MAX_CANDIDATES) {
+  const eligibleFoods = FOODS.filter(
+    (food) => !excludedIds.includes(food.id) && meetsHardConstraints(food, answers),
+  )
+
+  const scoredFoods = eligibleFoods.map((food) => {
     const { score, matches } = evaluateFood(food, answers)
 
     // 동점자 사이에서만 순서가 섞이도록 최소 점수 단위(0.5)보다 작은 랜덤값을 더함
@@ -164,7 +181,7 @@ export function getMatchedConditions(food, answers) {
 
   if (matches.mealTime) labels.push(MATCH_LABELS.mealTime[answers.mealTime])
   if (matches.party) labels.push(MATCH_LABELS.party[answers.party])
-  if (matches.budget) labels.push(answers.budget >= NO_BUDGET_LIMIT ? '가격 무관' : '예산 이내')
+  if (matches.budget) labels.push(isUnlimitedBudget(answers.budget) ? '가격 무관' : '예상 가격 예산 이내')
   if (matches.spicy) labels.push(food.spicy === 0 ? '안 매움' : food.spicy === 1 ? '적당히 매콤' : '화끈한 매운맛')
   if (matches.soup && answers.soup !== 'any') labels.push(food.soup ? '국물 있음' : '국물 없음')
   if (matches.fullness) labels.push(['', '가벼운 한 끼', '적당한 포만감', '아주 든든함'][food.fullness])
@@ -176,7 +193,7 @@ export function getMatchedConditions(food, answers) {
  * 사용자의 실제 답변과 선택된 음식 데이터를 비교해 추천 이유 문장 생성
  * - 일치한 조건만 근거로 사용하고, 어긋난 조건은 "다만 ~" 으로 솔직하게 덧붙임
  *
- * 예) 혼자 먹기 편하고, 15,000원 이하에서 즐길 수 있으며,
+ * 예) 혼자 먹기 편하고, 1인당 예상 가격이 15,000원 이하이며,
  *     국물이 있고 든든한 메뉴를 원하셔서 추천했어요.
  *
  * @param {Object} food 선택된 음식 객체
@@ -195,12 +212,11 @@ export function generateRecommendationReason(food, answers) {
   if (matches.party) clauses.push(PARTY_CLAUSE[answers.party])
 
   // 2. 예산
-  if (answers.budget >= NO_BUDGET_LIMIT) {
-    clauses.push('가격 걱정 없이 마음껏 즐길 수 있으며')
+  // 실제 식당 가격은 다를 수 있으므로 '예상 가격' 기준임을 분명히 함
+  if (isUnlimitedBudget(answers.budget)) {
+    clauses.push('가격 걱정 없이 고를 수 있고')
   } else if (matches.budget) {
-    clauses.push(`${answers.budget.toLocaleString()}원 이하에서 즐길 수 있으며`)
-  } else {
-    caveats.push(`예산보다 조금 높은 ${food.budget.toLocaleString()}원 선이지만 그만한 만족감이 있어요`)
+    clauses.push(`1인당 예상 가격이 ${formatWon(answers.budget)} 이하이며`)
   }
 
   // 3. 음식 특성 (맵기 · 국물 · 든든함) — 사용자가 원한 것과 일치한 것만
